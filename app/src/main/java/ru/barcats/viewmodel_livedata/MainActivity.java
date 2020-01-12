@@ -15,16 +15,5 @@ public class MainActivity extends AppCompatActivity {
 
         getLifecycle().addObserver(myServer);
     }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        myServer.connect();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        myServer.disconnect();
-    }
+    
 }
