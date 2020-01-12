@@ -1,11 +1,12 @@
 package ru.barcats.viewmodel_livedata;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 public class DataController {
 
     private static  DataController ourInstance;
-    LiveData<String> liveData;
+    private MutableLiveData<String> liveData = new MutableLiveData<>();
 
     public static DataController getInstance()
     {
@@ -19,11 +20,11 @@ public class DataController {
         return ourInstance;
     }
 
-    private LiveData<String> getData() {
+    public LiveData<String> getData() {
         return liveData;
     }
 
-    public void setLiveData(LiveData<String> liveData) {
-        this.liveData = liveData;
+    public void setInLiveData(String liveData){
+        this.liveData.setValue(liveData);
     }
 }
