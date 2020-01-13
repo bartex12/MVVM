@@ -10,10 +10,12 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import ru.barcats.viewmodel_livedata.model.flicr.ApiKeyProvider;
 import ru.barcats.viewmodel_livedata.model.flicr.FlickrApi;
 import ru.barcats.viewmodel_livedata.model.entities.Photo;
 import ru.barcats.viewmodel_livedata.model.PhotoDataSource;
 import ru.barcats.viewmodel_livedata.model.PhotoDataSourceImpl;
+import ru.barcats.viewmodel_livedata.model.flicr.FlickrApiKeyProvider;
 import ru.barcats.viewmodel_livedata.model.flicr.FlickrHostProvider;
 import ru.barcats.viewmodel_livedata.model.flicr.HostProvider;
 import ru.barcats.viewmodel_livedata.model.repository.PhotoRepository;
@@ -36,7 +38,8 @@ public class MyViewModel extends AndroidViewModel {
          ResourceManager resourceManager = new ResourceManagerImpl(application);
          HostProvider hostProvider = new FlickrHostProvider(resourceManager);
          FlickrApi flickrApi = new FlickrApi(hostProvider);
-         PhotoDataSource photoDataSource = new PhotoDataSourceImpl(flickrApi);
+         ApiKeyProvider apiKeyProvider = new FlickrApiKeyProvider(resourceManager);
+         PhotoDataSource photoDataSource = new PhotoDataSourceImpl(flickrApi, apiKeyProvider);
          photoRepository = new PhotosRepositoryImpl(photoDataSource);
     }
 

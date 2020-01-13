@@ -8,7 +8,10 @@ import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import retrofit2.Response;
 import ru.barcats.viewmodel_livedata.model.entities.Photo;
+import ru.barcats.viewmodel_livedata.model.flicr.ApiKeyProvider;
 import ru.barcats.viewmodel_livedata.model.flicr.FlickrApi;
+
+import ru.barcats.viewmodel_livedata.model.flicr.FlickrApiKeyProvider;
 import ru.barcats.viewmodel_livedata.model.flicr.FlickrPhotoApiService;
 import ru.barcats.viewmodel_livedata.model.photoModel.ApiPhoto;
 import ru.barcats.viewmodel_livedata.model.photoModel.ApiResult;
@@ -23,10 +26,11 @@ public class PhotoDataSourceImpl implements PhotoDataSource {
     private static final String NO_JSON_CALLBACK = "1";
     private static final String URL_S = "url_s";
     private FlickrApi flickrApi;
+    private ApiKeyProvider apiKeyProvider;
 
-
-    public PhotoDataSourceImpl(FlickrApi flickrApi) {
+    public PhotoDataSourceImpl(FlickrApi flickrApi, ApiKeyProvider apiKeyProvider) {
         this.flickrApi = flickrApi;
+        this.apiKeyProvider = apiKeyProvider;
     }
 
     @Override
@@ -52,7 +56,7 @@ public class PhotoDataSourceImpl implements PhotoDataSource {
                     //выполняем запрос @GET("services/rest") к серверу
                     Response<ApiResult> response =iService.getRecentPhotos(
                             FLICKR_PHOTOS_GET_RECENT,
-                            "877aa89f1b5ec8cfcfa7b960b3909336",
+                            apiKeyProvider.getApiKey(),
                             JSON,
                             NO_JSON_CALLBACK,
                             perPage,
