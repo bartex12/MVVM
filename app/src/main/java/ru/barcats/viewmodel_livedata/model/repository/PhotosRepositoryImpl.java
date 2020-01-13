@@ -1,8 +1,11 @@
-package ru.barcats.viewmodel_livedata.model;
+package ru.barcats.viewmodel_livedata.model.repository;
 
 import java.util.List;
+import ru.barcats.viewmodel_livedata.model.entities.Photo;
+import ru.barcats.viewmodel_livedata.model.PhotoDataSource;
 
-public class PhotosRepositoryImpl implements DataRepository {
+
+public class PhotosRepositoryImpl implements PhotoRepository {
 
     private final PhotoDataSource photoDataSource;
 
@@ -15,3 +18,4 @@ public class PhotosRepositoryImpl implements DataRepository {
         return photoDataSource.loadData(pageNumber, pageSize);
     }
 }
+

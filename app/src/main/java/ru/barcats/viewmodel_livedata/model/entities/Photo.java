@@ -1,4 +1,4 @@
-package ru.barcats.viewmodel_livedata.model;
+package ru.barcats.viewmodel_livedata.model.entities;
 
 import java.util.Objects;
 

@@ -14,7 +14,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import ru.barcats.viewmodel_livedata.R;
-import ru.barcats.viewmodel_livedata.model.Photo;
+import ru.barcats.viewmodel_livedata.model.entities.Photo;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>{
     private static final String TAG = "33333";
@@ -25,7 +25,7 @@ public interface OnPhotoClickListener{
     void onPhotoClick(String url);
 }
 
-public void setOnPhotoClickListener(OnPhotoClickListener onPhotoClickListener){
+    public void setOnPhotoClickListener(OnPhotoClickListener onPhotoClickListener){
     this.onPhotoClickListener = onPhotoClickListener;
 }
 

@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import retrofit2.Response;
+import ru.barcats.viewmodel_livedata.model.entities.Photo;
+import ru.barcats.viewmodel_livedata.model.flicr.FlickrApi;
+import ru.barcats.viewmodel_livedata.model.flicr.FlickrPhotoApiService;
 import ru.barcats.viewmodel_livedata.model.photoModel.ApiPhoto;
 import ru.barcats.viewmodel_livedata.model.photoModel.ApiResult;
 

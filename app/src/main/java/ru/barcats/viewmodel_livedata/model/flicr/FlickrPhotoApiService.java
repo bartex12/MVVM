@@ -1,4 +1,4 @@
-package ru.barcats.viewmodel_livedata.model;
+package ru.barcats.viewmodel_livedata.model.flicr;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

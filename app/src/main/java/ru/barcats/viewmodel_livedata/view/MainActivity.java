@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import ru.barcats.viewmodel_livedata.R;
-import ru.barcats.viewmodel_livedata.model.Photo;
+import ru.barcats.viewmodel_livedata.model.entities.Photo;
 import ru.barcats.viewmodel_livedata.viewModel.MyViewModel;
 
 import android.content.Intent;
@@ -20,7 +20,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
