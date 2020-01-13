@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">ViewModel_LiveData</string>
+
+    <string name="rate_proposal_message">Хотите оценить наше приложение в Google Play?</string>
+    <string name="rate_proposal_yes">Оценить</string>
+    <string name="rate_proposal_no">Не сейчас</string>
+    <string name="flick_api_key">877aa89f1b5ec8cfcfa7b960b3909336</string>
+    <string name="stars">*****</string>
+    <string name="launch_">Запуск №</string>
+    <string name="name">Что ищем?</string>
+    <string name="search">Поиск</string>
+    <string name="todo">imag From Internet</string>
+    <string name="nature">nature</string>
+    <string name="more">Подробно</string>
+    <string name="input_text">Введите текст для поиска фото</string>
 </resources>

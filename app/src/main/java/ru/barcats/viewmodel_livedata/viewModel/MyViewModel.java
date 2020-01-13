@@ -14,12 +14,17 @@ import ru.barcats.viewmodel_livedata.model.PhotoDataSourceImpl;
 import ru.barcats.viewmodel_livedata.model.PhotosRepositoryImpl;
 
 public class MyViewModel extends ViewModel {
-    private MutableLiveData<String> data;
+
+    private static final int PAGE_NUMBER = 1;
+    private static final int PAGE_SIZE_RESENT = 33;
+    private MutableLiveData<List<Photo>> data;
+    //private List<Photo> photos = new ArrayList<>();
+
     private FlickrApi flickrApi = new FlickrApi();
     private PhotoDataSource photoDataSource = new PhotoDataSourceImpl(flickrApi);
     private DataRepository dataRepository = new PhotosRepositoryImpl(photoDataSource);
 
-    public LiveData<String> getData() {
+    public LiveData<List<Photo>> getData() {
         if (data == null) {
             data = new MutableLiveData<>();
             loadData();
@@ -30,11 +35,11 @@ public class MyViewModel extends ViewModel {
     // а getData в свою очередь вызывается из Activity и все это происходит в UI потоке.
     // Если loadData начнет грузить данные синхронно, то он заблокирует UI поток.
     private void loadData() {
-        //получаем список фото из 3 штук
-        List<Photo> photos = dataRepository.loadData(1, 3);
-        //получаем url первого фото из трёх загруженных
-        String url = photos.get(0).getUrl();
+        //получаем список фото из PAGE_SIZE_RESENT = 33 штук
+        List<Photo> photos = dataRepository.loadData(PAGE_NUMBER, PAGE_SIZE_RESENT);
+        //получаем url первого фото из загруженных
+        //String url = photos.get(0).getUrl();
         //загружаем в LiveData
-        data.setValue(url);
+        data.setValue(photos);
     }
 }
