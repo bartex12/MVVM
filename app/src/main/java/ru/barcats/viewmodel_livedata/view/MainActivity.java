@@ -1,16 +1,15 @@
 package ru.barcats.viewmodel_livedata.view;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import ru.barcats.viewmodel_livedata.R;
 import ru.barcats.viewmodel_livedata.model.entities.Photo;
-import ru.barcats.viewmodel_livedata.viewModel.MyNumberModel;
 import ru.barcats.viewmodel_livedata.viewModel.MyViewModel;
 
 import android.content.DialogInterface;
@@ -20,31 +19,32 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "33333";
-    public static final String PHOTO_URL = "PHOTO_URL";
-    TextView textView1;
-    ImageView imageView;
-    EditText editTextSearch;
-    Button buttonSearch;
-    MyViewModel modelFoto = null;
-    MyNumberModel modelNumber;
-
+    private static final String PHOTO_URL = "PHOTO_URL";
+    private int numberOfLaunch = 0;
+    private boolean isRotate;
+    private String search = null;
+    private TextView textView1;
+    private EditText editTextSearch;
+    private MyViewModel modelFoto = null;
     private RecyclerView recyclerView;
-    private RecyclerViewAdapter recyclerViewAdapter; //адаптер для RecyclerView
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (savedInstanceState != null){
+            isRotate = savedInstanceState.getBoolean("sear");
+        }
 
         initViews();
         getPhotos();
@@ -55,11 +55,11 @@ public class MainActivity extends AppCompatActivity {
         textView1 = findViewById(R.id.text1);
         recyclerView = findViewById(R.id.recycledViewUrl);
         editTextSearch = findViewById(R.id.editTextSearch);
-        buttonSearch = findViewById(R.id.buttonSearch);
+        Button buttonSearch = findViewById(R.id.buttonSearch);
         buttonSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String search = editTextSearch.getText().toString();
+                search = editTextSearch.getText().toString();
                 if (search.trim().isEmpty()){
                     Snackbar.make(view, view.getResources().getString(R.string.input_text),
                             Snackbar.LENGTH_SHORT).show();
@@ -90,45 +90,45 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
-//        //создадим подписчика
-//        Observer<List<Photo>> observer = new Observer<List<Photo>>() {
-//            @Override
-//            public void onChanged(List<Photo> photos) {
-//                //реализуем интерфейс адаптера, в  его методе onCityClick получим url картинки
-//                RecyclerViewAdapter.OnPhotoClickListener onPhotoClickListener =
-//                        getOnPhotoClickListener();
-//                //передаём список фото в  адаптер ресайклера
-//                showPhotosList(photos, onPhotoClickListener);
-//            }
-//        };
-
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("sear", isRotate );
+    }
 
     private void getNumberOfStart() {
        LiveData<Integer> startNumber = modelFoto.getNumber();
         startNumber.observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(Integer number) {
-               //TODO
                 Log.d(TAG, "***  MainActivity getNumberOfStart  *** number = " + number);
+                //запоминаем число запусков, если нужно будет выводить
+                numberOfLaunch = number;
+                //если подходит номер запуска и это не простой поворот экрана, покажем диалог
+                if (shouldShowRate(number)&&!isRotate) {
+                    createRateDialog().show();
+                }
+                isRotate = true;
             }
         });
     }
 
-    private AlertDialog createProposalDialog() {
+    //диалог, имитирующий выставление оценки в PlayMarket
+    private AlertDialog createRateDialog() {
         Log.d(TAG, "MainActivity AlertDialog");
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.rate_proposal_message)
                 .setPositiveButton(R.string.rate_proposal_yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        //TODO
-                        //presenter.onRatePositive();
+                        //пишем в textView1 numberOfLaunch
+                        textView1.setText(String.format(Locale.getDefault(),"%s%d",
+                                getResources().getString(R.string.launch_), numberOfLaunch));
                     }
                 })
                 .setNegativeButton(R.string.rate_proposal_no, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        //TODO
-                        //presenter.onRateNegative();
+                        //пишем в textView1 *****
+                        textView1.setText(getResources().getString(R.string.stars));
                     }
                 });
         return builder.create();
@@ -145,10 +145,12 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
+    //отображение фото на экране через RecyclerAdapter
     private void showPhotosList(List<Photo> photos, RecyclerViewAdapter.OnPhotoClickListener onPhotoClickListener) {
         //используем встроенный GridLayoutManager
         GridLayoutManager layoutManager = new GridLayoutManager(getBaseContext(), 3);
-        recyclerViewAdapter = new RecyclerViewAdapter(photos);
+        //адаптер для RecyclerView
+        RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(photos);
         recyclerViewAdapter.setOnPhotoClickListener(onPhotoClickListener);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(recyclerViewAdapter);
@@ -164,5 +166,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "MainActivity onDestroy");
+    }
+
+    private Boolean shouldShowRate(Integer launchNumber) {
+        Log.d(TAG, "MainActivity shouldShowRate numberOfLaunch = " + numberOfLaunch );
+        if (launchNumber == 2) {
+            return true;
+        } else {
+            return (launchNumber - 2) % 4 == 0;
+        }
     }
 }

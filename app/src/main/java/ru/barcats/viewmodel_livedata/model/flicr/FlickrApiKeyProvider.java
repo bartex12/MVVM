@@ -13,7 +13,7 @@ public class FlickrApiKeyProvider implements ApiKeyProvider {
 
     @Override
     public String getApiKey() {
-        // FIXME: you should provide your own Flickr API key here
+        // Мой API key
         // see https://www.flickr.com/services/apps/create/apply/
         return resourceManager.getString(R.string.flick_api_key);
     }

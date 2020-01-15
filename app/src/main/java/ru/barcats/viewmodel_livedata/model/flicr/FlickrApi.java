@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class FlickrApi {
 
-    HostProvider hostProvider;
+    private HostProvider hostProvider;
 
     public FlickrApi(HostProvider hostProvider) {
         this.hostProvider = hostProvider;

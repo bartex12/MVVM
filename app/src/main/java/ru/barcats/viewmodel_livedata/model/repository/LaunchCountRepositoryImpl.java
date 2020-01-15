@@ -1,18 +1,15 @@
 package ru.barcats.viewmodel_livedata.model.repository;
 
-import android.util.Log;
 import ru.barcats.viewmodel_livedata.model.resources.PreferenceHelper;
 
 public class LaunchCountRepositoryImpl implements LaunchCountRepository {
 
-    private static final String TAG = "33333";
     private static final String NUMBER_OF_LAUNCH = "NUMBER_OF_LAUNCH";
 
     private PreferenceHelper preferenceHelper;
 
     public LaunchCountRepositoryImpl(PreferenceHelper preferenceHelper) {
         this.preferenceHelper = preferenceHelper;
-        //Log.d(TAG, "LaunchCountRepositoryImplNoRx Конструктор");
     }
 
     @Override

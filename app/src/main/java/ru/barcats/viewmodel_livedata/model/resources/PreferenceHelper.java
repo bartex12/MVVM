@@ -11,7 +11,6 @@ public class PreferenceHelper {
 
     public PreferenceHelper(Context context) {
         this.context = context;
-        //Log.d(TAG, "PreferenceHelper Конструктор");
     }
 
     //записываем номер следующего запуска = текущий запуск+1

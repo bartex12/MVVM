@@ -12,15 +12,14 @@ import java.util.Objects;
 
 public class DetailActivity extends AppCompatActivity {
 
-    private ImageView imageViewDetail;
-    public static final String PHOTO_URL = "PHOTO_URL";
+    private static final String PHOTO_URL = "PHOTO_URL";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        imageViewDetail = findViewById(R.id.imageViewDetail);
+        ImageView imageViewDetail = findViewById(R.id.imageViewDetail);
         String url = Objects.requireNonNull(getIntent().getExtras()).getString(PHOTO_URL);
         Picasso.get().load(url).into(imageViewDetail);
     }

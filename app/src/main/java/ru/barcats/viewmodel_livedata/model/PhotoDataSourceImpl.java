@@ -100,7 +100,6 @@ public class PhotoDataSourceImpl implements PhotoDataSource {
         Log.i(TAG, "PhotoDataSourceImpl getRecent 2 photos.size() = " + photoList.size());
         return photoList;
     }
-
 }
 
 
