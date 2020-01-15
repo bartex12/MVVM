@@ -27,14 +27,13 @@ public class MyViewModel extends AndroidViewModel {
 
     private static final int PAGE_NUMBER = 1;
     private static final int PAGE_SIZE_RESENT = 33;
+    private static final int PAGE_SIZE_SEARCH = 100;
     private MutableLiveData<List<Photo>> data;
     private PhotoRepository photoRepository;
 
     public MyViewModel(@NonNull Application application) {
         super(application);
-        //context = application.getApplicationContext();
-        //this.application = application;
-
+        //здесь нужен контекст - его и передаём в ResourceManagerImpl
          ResourceManager resourceManager = new ResourceManagerImpl(application);
          HostProvider hostProvider = new FlickrHostProvider(resourceManager);
          FlickrApi flickrApi = new FlickrApi(hostProvider);
@@ -46,16 +45,22 @@ public class MyViewModel extends AndroidViewModel {
     public LiveData<List<Photo>> getData() {
         if (data == null) {
             data = new MutableLiveData<>();
-            loadData();
+            loadData(null);
         }
         return data;
     }
     //Метод loadData должен быть асинхронным, потому что он вызывается из метода getData,
     // а getData в свою очередь вызывается из Activity и все это происходит в UI потоке.
     // Если loadData начнет грузить данные синхронно, то он заблокирует UI поток.
-    private void loadData() {
-        //получаем список фото из PAGE_SIZE_RESENT = 33 штук
-        List<Photo> photos = photoRepository.loadData(PAGE_NUMBER, PAGE_SIZE_RESENT);
+    public void loadData(String search) {
+        List<Photo> photos = null;
+        if (search == null) {
+            //получаем список фото из PAGE_SIZE_RESENT = 33 штук
+            photos = photoRepository.loadData(PAGE_NUMBER, PAGE_SIZE_RESENT, search);
+        }else {
+            //получаем список фото из PAGE_SIZE_SEARCH = 100 штук
+            photos = photoRepository.loadData(PAGE_NUMBER, PAGE_SIZE_SEARCH, search);
+        }
         //загружаем в LiveData
         data.setValue(photos);
     }

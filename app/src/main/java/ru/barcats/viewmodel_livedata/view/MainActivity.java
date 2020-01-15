@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView imageView;
     EditText editTextSearch;
     Button buttonSearch;
+    MyViewModel model = null;
 
     private RecyclerView recyclerView;
     private RecyclerViewAdapter recyclerViewAdapter; //адаптер для RecyclerView
@@ -43,34 +44,57 @@ public class MainActivity extends AppCompatActivity {
         initViews();
 
         // Получаем от провайдера модель
-        MyViewModel model = ViewModelProviders.of(this).get(MyViewModel.class);
+        model = ViewModelProviders.of(this).get(MyViewModel.class);
         //От модели получаем LiveData
         LiveData<List<Photo>> data = model.getData();
-        // подписываемся на LiveData и ждем данные
-        data.observe(this, new Observer<List<Photo>>() {
+        //создадим подписчика
+        Observer<List<Photo>> observer = new Observer<List<Photo>>() {
             @Override
             public void onChanged(List<Photo> photos) {
                 //реализуем интерфейс адаптера, в  его методе onCityClick получим url картинки
                 RecyclerViewAdapter.OnPhotoClickListener onPhotoClickListener =
-                        new RecyclerViewAdapter.OnPhotoClickListener() {
-                            @Override
-                            public void onPhotoClick(String url) {
-                                Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-                                intent.putExtra(PHOTO_URL,url);
-                                startActivity(intent);
-                            }
-                        };
-                //используем встроенный GridLayoutManager
-                GridLayoutManager layoutManager = new GridLayoutManager(getBaseContext(), 3);
-                recyclerViewAdapter = new RecyclerViewAdapter(photos);
-                recyclerViewAdapter.setOnPhotoClickListener(onPhotoClickListener);
-                recyclerView.setLayoutManager(layoutManager);
-                recyclerView.setAdapter(recyclerViewAdapter);
+                        getOnPhotoClickListener();
+                //передаём список фото в  адаптер ресайклера
+                showPhotosList(photos, onPhotoClickListener);
             }
-        });
+        };
+        // подписываемся на LiveData и ждем данные
+        data.observe(this, observer);
 
-
+//        //или можно так, без промежуточных действий
+//        // подписываемся на LiveData и ждем данные
+//        data.observe(this, new Observer<List<Photo>>() {
+//            @Override
+//            public void onChanged(List<Photo> photos) {
+//                //реализуем интерфейс адаптера, в  его методе onCityClick получим url картинки
+//                RecyclerViewAdapter.OnPhotoClickListener onPhotoClickListener =
+//                        getOnPhotoClickListener();
+//                //передаём список фото в  адаптер ресайклера
+//                showPhotosList(photos, onPhotoClickListener);
+//            }
+//        });
     }
+
+    private RecyclerViewAdapter.OnPhotoClickListener getOnPhotoClickListener() {
+        return new RecyclerViewAdapter.OnPhotoClickListener() {
+            @Override
+            public void onPhotoClick(String url) {
+                Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+                intent.putExtra(PHOTO_URL,url);
+                startActivity(intent);
+            }
+        };
+    }
+
+    private void showPhotosList(List<Photo> photos, RecyclerViewAdapter.OnPhotoClickListener onPhotoClickListener) {
+        //используем встроенный GridLayoutManager
+        GridLayoutManager layoutManager = new GridLayoutManager(getBaseContext(), 3);
+        recyclerViewAdapter = new RecyclerViewAdapter(photos);
+        recyclerViewAdapter.setOnPhotoClickListener(onPhotoClickListener);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(recyclerViewAdapter);
+    }
+
     private void initViews() {
         textView1 = findViewById(R.id.text1);
         recyclerView = findViewById(R.id.recycledViewUrl);
@@ -83,6 +107,10 @@ public class MainActivity extends AppCompatActivity {
                 if (search.trim().isEmpty()){
                     Snackbar.make(view, view.getResources().getString(R.string.input_text),
                             Snackbar.LENGTH_SHORT).show();
+                }else {
+                    Log.d(TAG, "MainActivity initViews search = " + search);
+                    //вызываем метод во ViewModel для отработки пользовательского действия
+                    model.loadData(search);
                 }
             }
         });

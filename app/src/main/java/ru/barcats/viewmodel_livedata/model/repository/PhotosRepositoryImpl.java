@@ -14,8 +14,8 @@ public class PhotosRepositoryImpl implements PhotoRepository {
     }
 
     @Override
-    public List<Photo> loadData(int pageNumber, int pageSize) {
-        return photoDataSource.loadData(pageNumber, pageSize);
+    public List<Photo> loadData(int pageNumber, int pageSize, String textSearch) {
+        return photoDataSource.loadData(pageNumber, pageSize, textSearch);
     }
 }
 

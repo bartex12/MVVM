@@ -10,12 +10,9 @@ import retrofit2.Response;
 import ru.barcats.viewmodel_livedata.model.entities.Photo;
 import ru.barcats.viewmodel_livedata.model.flicr.ApiKeyProvider;
 import ru.barcats.viewmodel_livedata.model.flicr.FlickrApi;
-
-import ru.barcats.viewmodel_livedata.model.flicr.FlickrApiKeyProvider;
 import ru.barcats.viewmodel_livedata.model.flicr.FlickrPhotoApiService;
 import ru.barcats.viewmodel_livedata.model.photoModel.ApiPhoto;
 import ru.barcats.viewmodel_livedata.model.photoModel.ApiResult;
-
 
 public class PhotoDataSourceImpl implements PhotoDataSource {
 
@@ -34,7 +31,7 @@ public class PhotoDataSourceImpl implements PhotoDataSource {
     }
 
     @Override
-    public List<Photo> loadData(final int pageNumber, final int perPage) {
+    public List<Photo> loadData(final int pageNumber, final int perPage, final String textSearch) {
 
         Log.i(TAG, "PhotoDataSourceImpl List<ApiResult> getRecent()");
         final List<Photo> photoList =  new ArrayList<>();
@@ -44,7 +41,7 @@ public class PhotoDataSourceImpl implements PhotoDataSource {
         //это описано в видеоуроке по ретрофиту Андроид2 урок 5
         //для синхронизации потоков - чтобы основной ждал пока закончится поиск фото на сервере
         final CountDownLatch startSignal = new CountDownLatch(1);
-        //final List<Photo> photos =  new ArrayList<>();
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -52,17 +49,29 @@ public class PhotoDataSourceImpl implements PhotoDataSource {
                     //создаём запрос с помощью ретрофита
                     FlickrPhotoApiService iService = flickrApi.getService();
                     Log.i(TAG, "PhotoDataSourceImpl getRecent iService = " + iService);
-
-                    //выполняем запрос @GET("services/rest") к серверу
-                    Response<ApiResult> response =iService.getRecentPhotos(
-                            FLICKR_PHOTOS_GET_RECENT,
-                            apiKeyProvider.getApiKey(),
-                            JSON,
-                            NO_JSON_CALLBACK,
-                            perPage,
-                            pageNumber,
-                            URL_S).execute();
-
+                    Response<ApiResult> response = null;
+                    if (textSearch == null){
+                        //выполняем запрос @GET("services/rest") к серверу
+                        response =iService.getRecentPhotos(
+                                FLICKR_PHOTOS_GET_RECENT,
+                                apiKeyProvider.getApiKey(),
+                                JSON,
+                                NO_JSON_CALLBACK,
+                                perPage,
+                                pageNumber,
+                                URL_S).execute();
+                    }else {
+                        //выполняем запрос @GET("services/rest") к серверу
+                         response =iService.getRecentSearchedPhotos(
+                                FLICKR_PHOTOS_SEARCH,
+                                apiKeyProvider.getApiKey(),
+                                JSON,
+                                NO_JSON_CALLBACK,
+                                perPage,
+                                pageNumber,
+                                URL_S,
+                                textSearch).execute();
+                    }
                     //получаем модель данных как она есть на сервере
                     ApiResult apiResults = response.body();
                     Log.i(TAG, "PhotoDataSourceImpl getRecent getTotal  = " +
@@ -88,13 +97,12 @@ public class PhotoDataSourceImpl implements PhotoDataSource {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         Log.i(TAG, "PhotoDataSourceImpl getRecent 2 photos.size() = " + photoList.size());
         return photoList;
     }
-
-
 }
+
+
 
 
 
