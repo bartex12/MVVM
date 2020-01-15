@@ -1,15 +1,19 @@
 package ru.barcats.viewmodel_livedata.view;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import ru.barcats.viewmodel_livedata.R;
 import ru.barcats.viewmodel_livedata.model.entities.Photo;
+import ru.barcats.viewmodel_livedata.viewModel.MyNumberModel;
 import ru.barcats.viewmodel_livedata.viewModel.MyViewModel;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,7 +35,8 @@ public class MainActivity extends AppCompatActivity {
     ImageView imageView;
     EditText editTextSearch;
     Button buttonSearch;
-    MyViewModel model = null;
+    MyViewModel modelFoto = null;
+    MyNumberModel modelNumber;
 
     private RecyclerView recyclerView;
     private RecyclerViewAdapter recyclerViewAdapter; //адаптер для RecyclerView
@@ -42,13 +47,38 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initViews();
+        getPhotos();
+        getNumberOfStart();
+    }
 
+    private void initViews() {
+        textView1 = findViewById(R.id.text1);
+        recyclerView = findViewById(R.id.recycledViewUrl);
+        editTextSearch = findViewById(R.id.editTextSearch);
+        buttonSearch = findViewById(R.id.buttonSearch);
+        buttonSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String search = editTextSearch.getText().toString();
+                if (search.trim().isEmpty()){
+                    Snackbar.make(view, view.getResources().getString(R.string.input_text),
+                            Snackbar.LENGTH_SHORT).show();
+                }else {
+                    Log.d(TAG, "MainActivity initViews search = " + search);
+                    //вызываем метод во ViewModel для отработки пользовательского действия
+                    modelFoto.loadData(search);
+                }
+            }
+        });
+    }
+
+    private void getPhotos() {
         // Получаем от провайдера модель
-        model = ViewModelProviders.of(this).get(MyViewModel.class);
+        modelFoto = ViewModelProviders.of(this).get(MyViewModel.class);
         //От модели получаем LiveData
-        LiveData<List<Photo>> data = model.getData();
-        //создадим подписчика
-        Observer<List<Photo>> observer = new Observer<List<Photo>>() {
+        LiveData<List<Photo>> data = modelFoto.getData();
+        //подписываемся на получение данных
+        data.observe(this, new Observer<List<Photo>>() {
             @Override
             public void onChanged(List<Photo> photos) {
                 //реализуем интерфейс адаптера, в  его методе onCityClick получим url картинки
@@ -57,13 +87,12 @@ public class MainActivity extends AppCompatActivity {
                 //передаём список фото в  адаптер ресайклера
                 showPhotosList(photos, onPhotoClickListener);
             }
-        };
-        // подписываемся на LiveData и ждем данные
-        data.observe(this, observer);
+        });
+    }
 
-//        //или можно так, без промежуточных действий
-//        // подписываемся на LiveData и ждем данные
-//        data.observe(this, new Observer<List<Photo>>() {
+
+//        //создадим подписчика
+//        Observer<List<Photo>> observer = new Observer<List<Photo>>() {
 //            @Override
 //            public void onChanged(List<Photo> photos) {
 //                //реализуем интерфейс адаптера, в  его методе onCityClick получим url картинки
@@ -72,7 +101,37 @@ public class MainActivity extends AppCompatActivity {
 //                //передаём список фото в  адаптер ресайклера
 //                showPhotosList(photos, onPhotoClickListener);
 //            }
-//        });
+//        };
+
+
+    private void getNumberOfStart() {
+       LiveData<Integer> startNumber = modelFoto.getNumber();
+        startNumber.observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer number) {
+               //TODO
+                Log.d(TAG, "***  MainActivity getNumberOfStart  *** number = " + number);
+            }
+        });
+    }
+
+    private AlertDialog createProposalDialog() {
+        Log.d(TAG, "MainActivity AlertDialog");
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.rate_proposal_message)
+                .setPositiveButton(R.string.rate_proposal_yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //TODO
+                        //presenter.onRatePositive();
+                    }
+                })
+                .setNegativeButton(R.string.rate_proposal_no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //TODO
+                        //presenter.onRateNegative();
+                    }
+                });
+        return builder.create();
     }
 
     private RecyclerViewAdapter.OnPhotoClickListener getOnPhotoClickListener() {
@@ -93,27 +152,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerViewAdapter.setOnPhotoClickListener(onPhotoClickListener);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(recyclerViewAdapter);
-    }
-
-    private void initViews() {
-        textView1 = findViewById(R.id.text1);
-        recyclerView = findViewById(R.id.recycledViewUrl);
-        editTextSearch = findViewById(R.id.editTextSearch);
-        buttonSearch = findViewById(R.id.buttonSearch);
-        buttonSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String search = editTextSearch.getText().toString();
-                if (search.trim().isEmpty()){
-                    Snackbar.make(view, view.getResources().getString(R.string.input_text),
-                            Snackbar.LENGTH_SHORT).show();
-                }else {
-                    Log.d(TAG, "MainActivity initViews search = " + search);
-                    //вызываем метод во ViewModel для отработки пользовательского действия
-                    model.loadData(search);
-                }
-            }
-        });
     }
 
     @Override

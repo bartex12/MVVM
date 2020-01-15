@@ -11,8 +11,8 @@ import ru.barcats.viewmodel_livedata.model.entities.Photo;
 import ru.barcats.viewmodel_livedata.model.flicr.ApiKeyProvider;
 import ru.barcats.viewmodel_livedata.model.flicr.FlickrApi;
 import ru.barcats.viewmodel_livedata.model.flicr.FlickrPhotoApiService;
-import ru.barcats.viewmodel_livedata.model.photoModel.ApiPhoto;
-import ru.barcats.viewmodel_livedata.model.photoModel.ApiResult;
+import ru.barcats.viewmodel_livedata.model.photomodelapi.ApiPhoto;
+import ru.barcats.viewmodel_livedata.model.photomodelapi.ApiResult;
 
 public class PhotoDataSourceImpl implements PhotoDataSource {
 
@@ -49,7 +49,7 @@ public class PhotoDataSourceImpl implements PhotoDataSource {
                     //создаём запрос с помощью ретрофита
                     FlickrPhotoApiService iService = flickrApi.getService();
                     Log.i(TAG, "PhotoDataSourceImpl getRecent iService = " + iService);
-                    Response<ApiResult> response = null;
+                    Response<ApiResult> response;
                     if (textSearch == null){
                         //выполняем запрос @GET("services/rest") к серверу
                         response =iService.getRecentPhotos(
@@ -100,6 +100,7 @@ public class PhotoDataSourceImpl implements PhotoDataSource {
         Log.i(TAG, "PhotoDataSourceImpl getRecent 2 photos.size() = " + photoList.size());
         return photoList;
     }
+
 }
 
 

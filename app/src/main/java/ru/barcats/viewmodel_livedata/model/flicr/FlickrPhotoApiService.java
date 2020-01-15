@@ -3,7 +3,7 @@ package ru.barcats.viewmodel_livedata.model.flicr;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
-import ru.barcats.viewmodel_livedata.model.photoModel.ApiResult;
+import ru.barcats.viewmodel_livedata.model.photomodelapi.ApiResult;
 
 public interface FlickrPhotoApiService {
 

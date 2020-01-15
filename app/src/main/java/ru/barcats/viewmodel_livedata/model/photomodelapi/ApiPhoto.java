@@ -1,4 +1,4 @@
-package ru.barcats.viewmodel_livedata.model.photoModel;
+package ru.barcats.viewmodel_livedata.model.photomodelapi;
 
 import com.google.gson.annotations.SerializedName;
 
