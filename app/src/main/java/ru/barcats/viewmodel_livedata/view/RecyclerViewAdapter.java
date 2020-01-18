@@ -17,6 +17,7 @@ import ru.barcats.viewmodel_livedata.R;
 import ru.barcats.viewmodel_livedata.model.entities.Photo;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>{
+
     private static final String TAG = "33333";
     private List<Photo> data;
     private OnPhotoClickListener onPhotoClickListener;

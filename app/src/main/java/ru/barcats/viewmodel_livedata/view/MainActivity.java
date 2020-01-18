@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.paging.PagedList;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import ru.barcats.viewmodel_livedata.R;
@@ -24,6 +25,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,6 +39,10 @@ public class MainActivity extends AppCompatActivity {
     private EditText editTextSearch;
     private MyViewModel modelFoto = null;
     private RecyclerView recyclerView;
+
+    private static final int PAGE_NUMBER = 1;
+    private static final int PAGE_SIZE_RESENT = 33;
+    private static final int PAGE_SIZE_SEARCH = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +73,8 @@ public class MainActivity extends AppCompatActivity {
                 }else {
                     Log.d(TAG, "MainActivity initViews search = " + search);
                     //вызываем метод во ViewModel для отработки пользовательского действия
-                    modelFoto.loadData(search);
+                    //modelFoto.loadData(search);
+                    modelFoto.loadData(PAGE_NUMBER, PAGE_SIZE_RESENT);
                 }
             }
         });
@@ -76,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         // Получаем от провайдера модель
         modelFoto = ViewModelProviders.of(this).get(MyViewModel.class);
         //От модели получаем LiveData
-        LiveData<List<Photo>> data = modelFoto.getData();
+        LiveData<List<Photo>> data = modelFoto.getData(PAGE_NUMBER, PAGE_SIZE_RESENT);
         //подписываемся на получение данных
         data.observe(this, new Observer<List<Photo>>() {
             @Override
@@ -88,6 +96,42 @@ public class MainActivity extends AppCompatActivity {
                 showPhotosList(photos, onPhotoClickListener);
             }
         });
+    }
+
+
+    //отображение фото на экране через RecyclerAdapter
+    private void showPhotosList(List<Photo> photos, RecyclerViewAdapter.OnPhotoClickListener onPhotoClickListener) {
+        //используем встроенный GridLayoutManager
+        GridLayoutManager layoutManager = new GridLayoutManager(getBaseContext(), 3);
+        PhotoPageAdapter adapter = new PhotoPageAdapter(this);
+        //адаптер для RecyclerView
+        //RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(photos);
+        //recyclerViewAdapter.setOnPhotoClickListener(onPhotoClickListener);
+        recyclerView.setLayoutManager(layoutManager);
+        //recyclerView.setAdapter(recyclerViewAdapter);
+        recyclerView.setAdapter(adapter);
+
+        MyPositionalDataSource dataSource = new MyPositionalDataSource(modelFoto);
+
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPageSize(10)
+                .setInitialLoadSizeHint(30)
+                .setPrefetchDistance(10)
+                .build();
+
+        Executor fetchExecutor = Executors.newSingleThreadExecutor();
+
+        PagedList<Photo> pagedList = new PagedList.Builder<>(dataSource, config)
+                .setFetchExecutor(fetchExecutor)
+                .setNotifyExecutor(new MainThreadExecutor())
+                .build();
+
+
+
+        adapter.submitList(pagedList);
+
+
     }
 
     @Override
@@ -143,17 +187,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         };
-    }
-
-    //отображение фото на экране через RecyclerAdapter
-    private void showPhotosList(List<Photo> photos, RecyclerViewAdapter.OnPhotoClickListener onPhotoClickListener) {
-        //используем встроенный GridLayoutManager
-        GridLayoutManager layoutManager = new GridLayoutManager(getBaseContext(), 3);
-        //адаптер для RecyclerView
-        RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(photos);
-        recyclerViewAdapter.setOnPhotoClickListener(onPhotoClickListener);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(recyclerViewAdapter);
     }
 
     @Override
