@@ -11,6 +11,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.paging.PagedListAdapter;
@@ -22,25 +23,31 @@ import ru.barcats.viewmodel_livedata.model.entities.Photo;
 public class PhotoPageAdapter extends PagedListAdapter<Photo, PhotoPageAdapter.PhotoViewHolder> {
 
     private static final String TAG = "33333";
-    private List<Photo> data;
+    private OnPageClickListener onPageClickListener;
 
-    protected PhotoPageAdapter(Context context) {
+     PhotoPageAdapter(Context context) {
         super(new DiffUtilCallback());
     }
 
+    public interface OnPageClickListener {
+        void onPageClick(String url);
+    }
+
+     void setOnPageClickListener(OnPageClickListener onPageClickListener){
+        this.onPageClickListener = onPageClickListener;
+    }
 
     @NonNull
     @Override
     public PhotoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_list_imag, parent, false);
-        PhotoViewHolder holder = new PhotoViewHolder(view);
-        return holder;
+        return new PhotoViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull PhotoViewHolder holder, int position) {
-        Photo photo = getItem(position);
+        final Photo photo = getItem(position);
         if (photo == null){
             holder.imageView.setImageResource(R.drawable.turtle1_12);
         }else {
@@ -48,6 +55,14 @@ public class PhotoPageAdapter extends PagedListAdapter<Photo, PhotoPageAdapter.P
             //загружаем картинку в imageView по url с помощью библиотеки Picasso
             Picasso.get().load(url).into(holder.imageView);
         }
+
+        holder.imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String url = Objects.requireNonNull(photo).getUrl();
+                onPageClickListener.onPageClick(url);
+            }
+        });
     }
 
     //*************  ViewHolder  ***********

@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "33333";
     private static final String PHOTO_URL = "PHOTO_URL";
+    private static final String ROTATE= "ROTATE";
     private int numberOfLaunch = 0;
     private boolean isRotate;
     private String search = null;
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState != null){
-            isRotate = savedInstanceState.getBoolean("sear");
+            isRotate = savedInstanceState.getBoolean(ROTATE);
         }
 
         initViews();
@@ -75,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "MainActivity initViews search = " + search);
                     //вызываем метод во ViewModel для отработки пользовательского действия
                     //modelFoto.loadData(search);
-                    modelFoto.loadData(PAGE_NUMBER, PAGE_SIZE_RESENT);
+                    modelFoto.loadData(PAGE_NUMBER, PAGE_SIZE_SEARCH, search);
                 }
             }
         });
@@ -86,6 +87,17 @@ public class MainActivity extends AppCompatActivity {
         GridLayoutManager layoutManager = new GridLayoutManager(getBaseContext(), 3);
         //адаптер для RecyclerView
        final PhotoPageAdapter adapter = new PhotoPageAdapter(MainActivity.this);
+        //реализуем интерфейс адаптера, в  его методе onCityClick получим url картинки
+        PhotoPageAdapter.OnPageClickListener onPageClickListener =
+                new PhotoPageAdapter.OnPageClickListener() {
+                    @Override
+                    public void onPageClick(String url) {
+                        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+                        intent.putExtra(PHOTO_URL,url);
+                        startActivity(intent);
+                    }
+                };
+        adapter.setOnPageClickListener(onPageClickListener);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
 
@@ -132,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean("sear", isRotate );
+        outState.putBoolean(ROTATE, isRotate );
     }
 
     private void getNumberOfStart() {

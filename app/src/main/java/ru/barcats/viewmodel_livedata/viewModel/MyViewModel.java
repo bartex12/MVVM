@@ -27,8 +27,6 @@ import ru.barcats.viewmodel_livedata.model.resources.ResourceManagerImpl;
 public class MyViewModel extends AndroidViewModel {
 
     private static final String TAG = "33333";
-
-    private MutableLiveData<List<Photo>> data;
     private MutableLiveData <Integer> numberOfLaunch;
     private PhotoRepository photoRepository;
     private LaunchCountRepository launchCountRepository;
@@ -47,15 +45,6 @@ public class MyViewModel extends AndroidViewModel {
          photoRepository = new PhotosRepositoryImpl(photoDataSource);
     }
 
-    public LiveData<List<Photo>> getData(int pageNumber, int pageSize) {
-        if (data == null) {
-            data = new MutableLiveData<>();
-//            loadData(null);
-            loadData(pageNumber, pageSize);
-        }
-        return data;
-    }
-
     public LiveData<Integer> getNumber() {
         if (numberOfLaunch == null) {
             numberOfLaunch = new MutableLiveData<>();
@@ -67,19 +56,8 @@ public class MyViewModel extends AndroidViewModel {
     //Метод loadData должен быть асинхронным, потому что он вызывается из метода getData,
     // а getData в свою очередь вызывается из Activity и все это происходит в UI потоке.
     // Если loadData начнет грузить данные синхронно, то он заблокирует UI поток.
-    public List<Photo> loadData(int pageNumber, int pageSize) {
-        List<Photo> photos;
-        photos = photoRepository.loadData(pageNumber, pageSize, null);
-//        if (search == null) {
-//            //получаем список фото из PAGE_SIZE_RESENT = 33 штук
-//            photos = photoRepository.loadData(PAGE_NUMBER, PAGE_SIZE_RESENT, null);
-//        }else {
-//            //получаем список фото из PAGE_SIZE_SEARCH = 100 штук
-//            photos = photoRepository.loadData(PAGE_NUMBER, PAGE_SIZE_SEARCH, null);
-//        }
-        //загружаем в LiveData
-        data.setValue(photos);
-        return photos;
+    public List<Photo> loadData(int pageNumber, int pageSize, String search) {
+        return photoRepository.loadData(pageNumber, pageSize, search);
     }
 
     private void loadNumber() {

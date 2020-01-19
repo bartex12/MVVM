@@ -21,14 +21,14 @@ public class MyPositionalDataSource extends PositionalDataSource<Photo> {
     public void loadInitial(@NonNull LoadInitialParams params, @NonNull LoadInitialCallback<Photo> callback) {
         Log.d(TAG, "loadInitial, requestedStartPosition = " + params.requestedStartPosition +
                 ", requestedLoadSize = " + params.requestedLoadSize);
-        List<Photo> result = myViewModel.loadData(params.requestedStartPosition, params.requestedLoadSize);
+        List<Photo> result = myViewModel.loadData(params.requestedStartPosition, params.requestedLoadSize, null);
         callback.onResult(result, 0);
     }
 
     @Override
     public void loadRange(@NonNull LoadRangeParams params, @NonNull LoadRangeCallback<Photo> callback) {
         Log.d(TAG, "loadRange, startPosition = " + params.startPosition + ", loadSize = " + params.loadSize);
-        List<Photo> result = myViewModel.loadData(params.startPosition, params.loadSize);
+        List<Photo> result = myViewModel.loadData(params.startPosition, params.loadSize, null);
         callback.onResult(result);
     }
 }
