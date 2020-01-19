@@ -108,22 +108,19 @@ public class MainActivity extends AppCompatActivity {
 
         //	Фабрика для создания DataSource
         //	нужна, так как LivePagedList создаёт DataSource самостоятельно
-        //TODO сделать фабрику для DataSource
-        MyPositionalDataSource dataSource = new MyPositionalDataSource(modelFoto);
-
-        //создаём Executor для фоновой загрузки данных
-        Executor fetchExecutor = Executors.newSingleThreadExecutor();
+        MySourceFactory factory = new MySourceFactory(modelFoto);
 
         //	билдер LivePagedList
         //	executor главного потока не нужен
         //	fetchExecutor не обязателен
         //	возвращает LivaData в которую будет приходить PagedList
+        // здесь нужно  не dataSource а dataSourceFactory
         LiveData<PagedList<Photo>> pagedListLiveData =
-                new LivePagedListBuilder<>(dataSource, config)
-                        .setFetchExecutor(fetchExecutor)
+                new LivePagedListBuilder< >(factory, config)
+                        .setFetchExecutor(Executors.newSingleThreadExecutor())
                         .build();
 
-        //	подписываемся на LivaData и обновляем адаптер 
+        //	подписываемся на LivaData и обновляем адаптер
         pagedListLiveData.observe(this, new Observer<PagedList<Photo>>() {
             @Override
             public void onChanged(PagedList<Photo> photos) {
