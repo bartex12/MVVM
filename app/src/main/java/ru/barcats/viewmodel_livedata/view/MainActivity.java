@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -81,57 +82,54 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getPhotos() {
-        // Получаем от провайдера модель
-        modelFoto = ViewModelProviders.of(this).get(MyViewModel.class);
-        //От модели получаем LiveData
-        LiveData<List<Photo>> data = modelFoto.getData(PAGE_NUMBER, PAGE_SIZE_RESENT);
-        //подписываемся на получение данных
-        data.observe(this, new Observer<List<Photo>>() {
-            @Override
-            public void onChanged(List<Photo> photos) {
-                //реализуем интерфейс адаптера, в  его методе onCityClick получим url картинки
-                RecyclerViewAdapter.OnPhotoClickListener onPhotoClickListener =
-                        getOnPhotoClickListener();
-                //передаём список фото в  адаптер ресайклера
-                showPhotosList(photos, onPhotoClickListener);
-            }
-        });
-    }
 
-
-    //отображение фото на экране через RecyclerAdapter
-    private void showPhotosList(List<Photo> photos, RecyclerViewAdapter.OnPhotoClickListener onPhotoClickListener) {
-        //используем встроенный GridLayoutManager
         GridLayoutManager layoutManager = new GridLayoutManager(getBaseContext(), 3);
-        PhotoPageAdapter adapter = new PhotoPageAdapter(this);
         //адаптер для RecyclerView
-        //RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(photos);
-        //recyclerViewAdapter.setOnPhotoClickListener(onPhotoClickListener);
+       final PhotoPageAdapter adapter = new PhotoPageAdapter(MainActivity.this);
         recyclerView.setLayoutManager(layoutManager);
-        //recyclerView.setAdapter(recyclerViewAdapter);
         recyclerView.setAdapter(adapter);
 
-        MyPositionalDataSource dataSource = new MyPositionalDataSource(modelFoto);
-
+        //	конфигурация PagedList. Здесь указывается количество загружаемых данных
         PagedList.Config config = new PagedList.Config.Builder()
+        //	использовать ли плейсхолдеры - заглушки на месте данных,
+        //	если известно общее количество данных в списке
                 .setEnablePlaceholders(false)
-                .setPageSize(10)
+                //	размер страницы - порции загружаемых данных
+                .setPageSize(5)
+                //	число элементов данных, которые будут загружены при изначальном создании списка
                 .setInitialLoadSizeHint(30)
+                //	расстояние в позициях данных, при достижении которого при скролле
+                //	будет активирована дальнейшая загрузка данных
                 .setPrefetchDistance(10)
                 .build();
 
+        // Получаем от провайдера модель - это как бы вместо презентора
+        modelFoto = ViewModelProviders.of(this).get(MyViewModel.class);
+
+        //	Фабрика для создания DataSource
+        //	нужна, так как LivePagedList создаёт DataSource самостоятельно
+        //TODO сделать фабрику для DataSource
+        MyPositionalDataSource dataSource = new MyPositionalDataSource(modelFoto);
+
+        //создаём Executor для фоновой загрузки данных
         Executor fetchExecutor = Executors.newSingleThreadExecutor();
 
-        PagedList<Photo> pagedList = new PagedList.Builder<>(dataSource, config)
-                .setFetchExecutor(fetchExecutor)
-                .setNotifyExecutor(new MainThreadExecutor())
-                .build();
+        //	билдер LivePagedList
+        //	executor главного потока не нужен
+        //	fetchExecutor не обязателен
+        //	возвращает LivaData в которую будет приходить PagedList
+        LiveData<PagedList<Photo>> pagedListLiveData =
+                new LivePagedListBuilder<>(dataSource, config)
+                        .setFetchExecutor(fetchExecutor)
+                        .build();
 
-
-
-        adapter.submitList(pagedList);
-
-
+        //	подписываемся на LivaData и обновляем адаптер 
+        pagedListLiveData.observe(this, new Observer<PagedList<Photo>>() {
+            @Override
+            public void onChanged(PagedList<Photo> photos) {
+                adapter.submitList(photos);
+            }
+        });
     }
 
     @Override
