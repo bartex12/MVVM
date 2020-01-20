@@ -30,9 +30,12 @@ public class MyViewModel extends AndroidViewModel {
     private MutableLiveData <Integer> numberOfLaunch;
     private PhotoRepository photoRepository;
     private LaunchCountRepository launchCountRepository;
+    private String search;
+
 
     public MyViewModel(@NonNull Application application) {
         super(application);
+
         //здесь нужен контекст - его и передаём в ResourceManagerImpl и PreferenceHelper
          PreferenceHelper preferenceHelper = new PreferenceHelper(application);
          launchCountRepository = new LaunchCountRepositoryImpl(preferenceHelper);
@@ -45,6 +48,7 @@ public class MyViewModel extends AndroidViewModel {
          photoRepository = new PhotosRepositoryImpl(photoDataSource);
     }
 
+    //метод получения числа запусков приложения
     public LiveData<Integer> getNumber() {
         if (numberOfLaunch == null) {
             numberOfLaunch = new MutableLiveData<>();
@@ -56,10 +60,12 @@ public class MyViewModel extends AndroidViewModel {
     //Метод loadData должен быть асинхронным, потому что он вызывается из метода getData,
     // а getData в свою очередь вызывается из Activity и все это происходит в UI потоке.
     // Если loadData начнет грузить данные синхронно, то он заблокирует UI поток.
-    public List<Photo> loadData(int pageNumber, int pageSize, String search) {
-        return photoRepository.loadData(pageNumber, pageSize, search);
+    public List<Photo> loadData(int requestedStartPosition, int requestedLoadSize, String searchStr) {
+        Log.d(TAG, "MyViewModel loadData search = " + searchStr);
+        return photoRepository.loadData(requestedStartPosition, requestedLoadSize, searchStr);
     }
 
+    //получаем число запусков приложения
     private void loadNumber() {
         //получаем номер запуска приложения
         Integer number = launchCountRepository.loadNumber();
@@ -72,6 +78,14 @@ public class MyViewModel extends AndroidViewModel {
     protected void onCleared() {
         super.onCleared();
         Log.d(TAG, "MyViewModel onCleared");
+        //сохраняем номер запучка приложения
         launchCountRepository.saveNumber();
+    }
+    public String getSearch() {
+        return search;
+    }
+
+    public void setSearch(String search) {
+        this.search = search;
     }
 }

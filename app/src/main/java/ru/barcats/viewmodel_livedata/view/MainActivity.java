@@ -23,10 +23,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.google.android.material.snackbar.Snackbar;
-
-import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
@@ -42,15 +39,12 @@ public class MainActivity extends AppCompatActivity {
     private MyViewModel modelFoto = null;
     private RecyclerView recyclerView;
 
-    private static final int PAGE_NUMBER = 1;
-    private static final int PAGE_SIZE_RESENT = 33;
-    private static final int PAGE_SIZE_SEARCH = 100;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //получаем переменную, отделяющую поворот устройства от выхода из приложнния
         if (savedInstanceState != null){
             isRotate = savedInstanceState.getBoolean(ROTATE);
         }
@@ -74,59 +68,33 @@ public class MainActivity extends AppCompatActivity {
                             Snackbar.LENGTH_SHORT).show();
                 }else {
                     Log.d(TAG, "MainActivity initViews search = " + search);
-                    //вызываем метод во ViewModel для отработки пользовательского действия
-                    //modelFoto.loadData(search);
-                    modelFoto.loadData(PAGE_NUMBER, PAGE_SIZE_SEARCH, search);
+                    getPageListConfig();
+                    // !!!передаём строку поиска во MyViewModel
+                    modelFoto.setSearch(search);
+                    //вызываем метод для получения данных
+                    getPhotos();
                 }
             }
         });
     }
 
+    //метод получения данных
     private void getPhotos() {
+        Log.d(TAG, "MainActivity getPhotos search = " + search);
 
-        GridLayoutManager layoutManager = new GridLayoutManager(getBaseContext(), 3);
-        //адаптер для RecyclerView
-       final PhotoPageAdapter adapter = new PhotoPageAdapter(MainActivity.this);
-        //реализуем интерфейс адаптера, в  его методе onCityClick получим url картинки
-        PhotoPageAdapter.OnPageClickListener onPageClickListener =
-                new PhotoPageAdapter.OnPageClickListener() {
-                    @Override
-                    public void onPageClick(String url) {
-                        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-                        intent.putExtra(PHOTO_URL,url);
-                        startActivity(intent);
-                    }
-                };
-        adapter.setOnPageClickListener(onPageClickListener);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
+        //получаем PhotoPageAdapter и привязываем его к recyclerView
+        final PhotoPageAdapter adapter = setPhotoPageAdapter();
 
-        //	конфигурация PagedList. Здесь указывается количество загружаемых данных
-        PagedList.Config config = new PagedList.Config.Builder()
-        //	использовать ли плейсхолдеры - заглушки на месте данных,
-        //	если известно общее количество данных в списке
-                .setEnablePlaceholders(false)
-                //	размер страницы - порции загружаемых данных
-                .setPageSize(5)
-                //	число элементов данных, которые будут загружены при изначальном создании списка
-                .setInitialLoadSizeHint(30)
-                //	расстояние в позициях данных, при достижении которого при скролле
-                //	будет активирована дальнейшая загрузка данных
-                .setPrefetchDistance(10)
-                .build();
+        //конфигурируем PagedList
+        PagedList.Config config = getPageListConfig();
 
-        // Получаем от провайдера модель - это как бы вместо презентора
+        // Получаем от провайдера модель
         modelFoto = ViewModelProviders.of(this).get(MyViewModel.class);
 
-        //	Фабрика для создания DataSource
-        //	нужна, так как LivePagedList создаёт DataSource самостоятельно
+        //так как LivePagedList создаёт DataSource самостоятельно, нужна фабрика
         MySourceFactory factory = new MySourceFactory(modelFoto);
 
-        //	билдер LivePagedList
-        //	executor главного потока не нужен
-        //	fetchExecutor не обязателен
-        //	возвращает LivaData в которую будет приходить PagedList
-        // здесь нужно  не dataSource а dataSourceFactory
+        //создаём LivaData в которую будет приходить PagedList, используя фабрику и конфигурацию
         LiveData<PagedList<Photo>> pagedListLiveData =
                 new LivePagedListBuilder< >(factory, config)
                         .setFetchExecutor(Executors.newSingleThreadExecutor())
@@ -141,6 +109,44 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    //метод для получения PhotoPageAdapter и привязки  его к recyclerView
+    private PhotoPageAdapter setPhotoPageAdapter() {
+        GridLayoutManager layoutManager = new GridLayoutManager(getBaseContext(), 3);
+        //адаптер для RecyclerView
+        final PhotoPageAdapter adapter = new PhotoPageAdapter(MainActivity.this);
+        //реализуем интерфейс адаптера, в  его методе onCityClick получим url картинки
+        PhotoPageAdapter.OnPageClickListener onPageClickListener =
+                new PhotoPageAdapter.OnPageClickListener() {
+                    @Override
+                    public void onPageClick(String url) {
+                        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+                        intent.putExtra(PHOTO_URL,url);
+                        startActivity(intent);
+                    }
+                };
+        adapter.setOnPageClickListener(onPageClickListener);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);
+        return adapter;
+    }
+
+    private PagedList.Config getPageListConfig() {
+        //	конфигурация PagedList. Здесь указывается количество загружаемых данных
+        return new PagedList.Config.Builder()
+                //	использовать ли плейсхолдеры - заглушки на месте данных,
+                //	если известно общее количество данных в списке
+                .setEnablePlaceholders(false)
+                //	размер страницы - порции загружаемых данных
+                .setPageSize(6)
+                //	число элементов данных, которые будут загружены при изначальном создании списка
+                .setInitialLoadSizeHint(30)
+                //	расстояние в позициях данных, при достижении которого при скролле
+                //	будет активирована дальнейшая загрузка данных
+                .setPrefetchDistance(10)
+                .build();
+    }
+
+    //запоминаем переменную, отделяющую поворот устройства от выхода из приложнния
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -159,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
                 if (shouldShowRate(number)&&!isRotate) {
                     createRateDialog().show();
                 }
+                //изменяем переменную, отделяющую поворот устройства от выхода из приложнния
                 isRotate = true;
             }
         });
@@ -183,17 +190,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         return builder.create();
-    }
-
-    private RecyclerViewAdapter.OnPhotoClickListener getOnPhotoClickListener() {
-        return new RecyclerViewAdapter.OnPhotoClickListener() {
-            @Override
-            public void onPhotoClick(String url) {
-                Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-                intent.putExtra(PHOTO_URL,url);
-                startActivity(intent);
-            }
-        };
     }
 
     @Override

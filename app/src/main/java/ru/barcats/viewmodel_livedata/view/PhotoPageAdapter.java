@@ -24,9 +24,13 @@ public class PhotoPageAdapter extends PagedListAdapter<Photo, PhotoPageAdapter.P
 
     private static final String TAG = "33333";
     private OnPageClickListener onPageClickListener;
+    private Context context;
 
      PhotoPageAdapter(Context context) {
+         //DiffUtilCallback для оптимального обновления адаптера
         super(new DiffUtilCallback());
+         //TODO уточнить работу класса DiffUtilCallback
+        this.context = context;
     }
 
     public interface OnPageClickListener {
@@ -48,6 +52,7 @@ public class PhotoPageAdapter extends PagedListAdapter<Photo, PhotoPageAdapter.P
     @Override
     public void onBindViewHolder(@NonNull PhotoViewHolder holder, int position) {
         final Photo photo = getItem(position);
+        //Log.d(TAG, "onBindViewHolder, position = " + position);
         if (photo == null){
             holder.imageView.setImageResource(R.drawable.turtle1_12);
         }else {
@@ -55,7 +60,7 @@ public class PhotoPageAdapter extends PagedListAdapter<Photo, PhotoPageAdapter.P
             //загружаем картинку в imageView по url с помощью библиотеки Picasso
             Picasso.get().load(url).into(holder.imageView);
         }
-
+        //устанавливаем слушатель щелчка на фото, при щелчке передаём url фото для вывода в деталях
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,6 +80,7 @@ public class PhotoPageAdapter extends PagedListAdapter<Photo, PhotoPageAdapter.P
         }
     }
 
+    // для оптимального обновления адаптера
     static  class DiffUtilCallback extends DiffUtil.ItemCallback<Photo>{
 
         @Override
