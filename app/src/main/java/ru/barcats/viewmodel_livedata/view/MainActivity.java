@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
                             Snackbar.LENGTH_SHORT).show();
                 }else {
                     Log.d(TAG, "MainActivity initViews search = " + search);
-                    getPageListConfig();
                     // !!!передаём строку поиска во MyViewModel
                     modelFoto.setSearch(search);
                     //вызываем метод для получения данных
@@ -89,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         PagedList.Config config = getPageListConfig();
 
         // Получаем от провайдера модель
+        // - для MVP было бы создание презентора, репозитория и т п, см код 4.4 по чистой архит.
         modelFoto = ViewModelProviders.of(this).get(MyViewModel.class);
 
         //так как LivePagedList создаёт DataSource самостоятельно, нужна фабрика

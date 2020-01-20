@@ -7,14 +7,32 @@
     android:layout_marginStart="8dp"
     android:layout_marginTop="8dp"
     android:layout_marginEnd="8dp"
-    android:layout_marginBottom="8dp">
+    android:layout_marginBottom="8dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textView"
+        android:textSize="18sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/adress" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:textSize="20sp"
+        android:textStyle="italic"
+        android:textColor="@color/colorPrimaryDark"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/stars" />
 
     <ImageView
         android:id="@+id/imageViewDetail"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        tools:srcCompat="@tools:sample/avatars"
-        android:contentDescription="@string/todo"/>
+        android:contentDescription="@string/todo"
+        tools:srcCompat="@tools:sample/avatars" />
 
 </LinearLayout>
