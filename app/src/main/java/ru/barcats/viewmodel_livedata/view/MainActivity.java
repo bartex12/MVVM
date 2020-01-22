@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import ru.barcats.viewmodel_livedata.R;
 import ru.barcats.viewmodel_livedata.model.entities.Photo;
+import ru.barcats.viewmodel_livedata.viewModel.MySourceFactory;
 import ru.barcats.viewmodel_livedata.viewModel.MyViewModel;
 
 import android.content.DialogInterface;
@@ -81,15 +82,15 @@ public class MainActivity extends AppCompatActivity {
     private void getPhotos() {
         Log.d(TAG, "MainActivity getPhotos search = " + search);
 
+        // Получаем модель от провайдера
+        // - для MVP было бы создание презентора, репозитория и т п, см код 4.4 по чистой архит.
+        modelFoto = ViewModelProviders.of(this).get(MyViewModel.class);
+
         //получаем PhotoPageAdapter и привязываем его к recyclerView
         final PhotoPageAdapter adapter = setPhotoPageAdapter();
 
         //конфигурируем PagedList
         PagedList.Config config = getPageListConfig();
-
-        // Получаем от провайдера модель
-        // - для MVP было бы создание презентора, репозитория и т п, см код 4.4 по чистой архит.
-        modelFoto = ViewModelProviders.of(this).get(MyViewModel.class);
 
         //так как LivePagedList создаёт DataSource самостоятельно, нужна фабрика
         MySourceFactory factory = new MySourceFactory(modelFoto);

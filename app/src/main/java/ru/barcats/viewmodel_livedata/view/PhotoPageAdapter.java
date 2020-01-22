@@ -1,16 +1,12 @@
 package ru.barcats.viewmodel_livedata.view;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
@@ -57,8 +53,15 @@ public class PhotoPageAdapter extends PagedListAdapter<Photo, PhotoPageAdapter.P
             holder.imageView.setImageResource(R.drawable.turtle1_12);
         }else {
             final String url = photo.getUrl();
-            //загружаем картинку в imageView по url с помощью библиотеки Picasso
-            Picasso.get().load(url).into(holder.imageView);
+            //загружаем картинку в imageView по url с поворотом на 30 градусов
+            // с помощью библиотеки Picasso
+            Picasso.get()
+                    .load(url)
+                    .placeholder(R.drawable.post)
+                    .error(R.drawable.mistake)
+                    .resize(200, 200) // изменяем размер картинки до указанной ширины и высоты
+                    .rotate(30) // указываем градус, на который следует повернуть картинку
+                    .into(holder.imageView);
         }
         //устанавливаем слушатель щелчка на фото, при щелчке передаём url фото для вывода в деталях
         holder.imageView.setOnClickListener(new View.OnClickListener() {

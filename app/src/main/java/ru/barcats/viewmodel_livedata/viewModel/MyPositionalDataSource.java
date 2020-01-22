@@ -1,13 +1,11 @@
-package ru.barcats.viewmodel_livedata.view;
+package ru.barcats.viewmodel_livedata.viewModel;
 
 import android.util.Log;
-
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.paging.PositionalDataSource;
 import ru.barcats.viewmodel_livedata.model.entities.Photo;
-import ru.barcats.viewmodel_livedata.viewModel.MyViewModel;
 
 public class MyPositionalDataSource extends PositionalDataSource<Photo> {
     private static final String TAG = "33333";
@@ -21,6 +19,7 @@ public class MyPositionalDataSource extends PositionalDataSource<Photo> {
     public void loadInitial(@NonNull LoadInitialParams params, @NonNull LoadInitialCallback<Photo> callback) {
         Log.d(TAG, "loadInitial, requestedStartPosition = " + params.requestedStartPosition +
                 ", requestedLoadSize = " + params.requestedLoadSize);
+
         List<Photo> result = myViewModel
                 .loadData(params.requestedStartPosition, params.requestedLoadSize, myViewModel.getSearch());
         callback.onResult(result, 0);
@@ -29,6 +28,7 @@ public class MyPositionalDataSource extends PositionalDataSource<Photo> {
     @Override
     public void loadRange(@NonNull LoadRangeParams params, @NonNull LoadRangeCallback<Photo> callback) {
         Log.d(TAG, "loadRange, startPosition = " + params.startPosition + ", loadSize = " + params.loadSize);
+
         List<Photo> result = myViewModel
                 .loadData(params.startPosition, params.loadSize, myViewModel.getSearch());
         callback.onResult(result);
