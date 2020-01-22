@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graf_photos"
+    app:startDestination="@id/fragmentMain">
+
+    <fragment
+        android:id="@+id/fragmentMain"
+        android:name="ru.barcats.viewmodel_livedata.view.FragmentMain"
+        android:label="fragment_fragment_main"
+        tools:layout="@layout/fragment_fragment_main" >
+        <action
+            android:id="@+id/action_fragmentMain_to_fragmentDetail"
+            app:destination="@id/fragmentDetail" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentDetail"
+        android:name="ru.barcats.viewmodel_livedata.view.FragmentDetail"
+        android:label="fragment_fragment_detail"
+        tools:layout="@layout/fragment_fragment_detail" />
+</navigation>

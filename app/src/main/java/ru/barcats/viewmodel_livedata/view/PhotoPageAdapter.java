@@ -1,6 +1,5 @@
 package ru.barcats.viewmodel_livedata.view;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,13 +19,9 @@ public class PhotoPageAdapter extends PagedListAdapter<Photo, PhotoPageAdapter.P
 
     private static final String TAG = "33333";
     private OnPageClickListener onPageClickListener;
-    private Context context;
 
-     PhotoPageAdapter(Context context) {
-         //DiffUtilCallback для оптимального обновления адаптера
-        super(new DiffUtilCallback());
-         //TODO уточнить работу класса DiffUtilCallback
-        this.context = context;
+     PhotoPageAdapter() {
+        super(new DiffUtilCallback()); // для оптимального обновления адаптера
     }
 
     public interface OnPageClickListener {
