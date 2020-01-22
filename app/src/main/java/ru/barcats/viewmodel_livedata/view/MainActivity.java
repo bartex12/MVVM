@@ -15,37 +15,37 @@ import ru.barcats.viewmodel_livedata.R;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "33333";
     private boolean doubleBackToExitPressedOnce;
-    NavController navController;
+    //NavController navController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        navController = Navigation.findNavController(this,R.id.main_nav_host_fragment);
+        //navController = Navigation.findNavController(this,R.id.main_nav_host_fragment);
     }
 
-    @Override
-    public void onBackPressed() {
-        //если метка фрагмента fragment_fragment_main, закрываем программу по двойному щелчку Назад
-        if (Objects.requireNonNull(navController.getCurrentDestination().getLabel())
-                .equals(getResources().getString(R.string.fr_main_name)) ){
-            if (doubleBackToExitPressedOnce) {
-                super.onBackPressed();
-                return;
-            }
-            this.doubleBackToExitPressedOnce = true;
-            Snackbar.make(findViewById(android.R.id.content),
-                    Objects.requireNonNull(this).getString(R.string.forExit),
-                    Snackbar.LENGTH_SHORT).show();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    doubleBackToExitPressedOnce = false;
-                }
-            }, 2000);
-        }else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//        //если метка фрагмента fragment_fragment_main, закрываем программу по двойному щелчку Назад
+//        if (Objects.requireNonNull(navController.getCurrentDestination().getLabel())
+//                .equals(getResources().getString(R.string.fr_main_name)) ){
+//            if (doubleBackToExitPressedOnce) {
+//                super.onBackPressed();
+//                return;
+//            }
+//            this.doubleBackToExitPressedOnce = true;
+//            Snackbar.make(findViewById(android.R.id.content),
+//                    Objects.requireNonNull(this).getString(R.string.forExit),
+//                    Snackbar.LENGTH_SHORT).show();
+//            new Handler().postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    doubleBackToExitPressedOnce = false;
+//                }
+//            }, 2000);
+//        }else {
+//            super.onBackPressed();
+//        }
+//    }
 }
