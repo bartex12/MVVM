@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/fragmentMain"
-        android:name="ru.barcats.viewmodel_livedata.view.FragmentMain"
+        android:name="ru.barcats.viewmodellivedata.view.FragmentMain"
         android:label="fragment_fragment_main"
         tools:layout="@layout/fragment_fragment_main" >
         <action
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/fragmentDetail"
-        android:name="ru.barcats.viewmodel_livedata.view.FragmentDetail"
+        android:name="ru.barcats.viewmodellivedata.view.FragmentDetail"
         android:label="fragment_fragment_detail"
         tools:layout="@layout/fragment_fragment_detail" />
 </navigation>

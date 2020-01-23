@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ru.barcats.viewmodel_livedata.view.MainActivity">
+    tools:context="ru.barcats.viewmodellivedata.view.MainActivity">
 
     <!--специальный навигационный фрагмент-контейнер-->
     <!--в качестве параметра указан наш навигационный граф-->
