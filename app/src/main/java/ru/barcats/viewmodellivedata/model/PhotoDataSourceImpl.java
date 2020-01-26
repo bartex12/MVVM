@@ -33,7 +33,7 @@ public class PhotoDataSourceImpl implements PhotoDataSource {
     @Override
     public List<Photo> loadData(final int pageNumber, final int perPage, final String textSearch) {
 
-        Log.i(TAG, "PhotoDataSourceImpl List<ApiResult> getRecent()");
+        //Log.i(TAG, "PhotoDataSourceImpl loadData");
         final List<Photo> photoList =  new ArrayList<>();
 
         //TODO *************синхронизация нужна другая******************
@@ -82,7 +82,7 @@ public class PhotoDataSourceImpl implements PhotoDataSource {
                     for (int i=0; i<fotoList.size(); i++) {
                         photoList.add(new Photo(fotoList.get(i).getUrl()));
                     }
-                    Log.i(TAG, "PhotoDataSourceImpl getRecent 1 photoList.size() = " + photoList.size());
+                    //Log.i(TAG, "PhotoDataSourceImpl getRecent 1 photoList.size() = " + photoList.size());
                     //разрешаем работу основного потока для возврата данных после окончания этого
                     startSignal.countDown();
                 } catch (IOException e) {
@@ -97,7 +97,7 @@ public class PhotoDataSourceImpl implements PhotoDataSource {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Log.i(TAG, "PhotoDataSourceImpl getRecent 2 photos.size() = " + photoList.size());
+        Log.i(TAG, "PhotoDataSourceImpl getRecent photos.size() = " + photoList.size());
         return photoList;
     }
 }

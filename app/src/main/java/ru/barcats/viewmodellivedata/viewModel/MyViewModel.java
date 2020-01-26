@@ -81,6 +81,7 @@ public class MyViewModel extends AndroidViewModel {
         //сохраняем номер запучка приложения
         launchCountRepository.saveNumber();
     }
+
     public String getSearch() {
         return search;
     }

@@ -13,7 +13,9 @@
         android:theme="@style/AppTheme">
 
         <activity android:name="ru.barcats.viewmodellivedata.view.MainActivity"
-            android:windowSoftInputMode="stateHidden">
+            android:windowSoftInputMode="stateHidden"
+
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
@@ -24,3 +26,5 @@
     </application>
 
 </manifest>
+
+<!--    android:configChanges="orientation|screenSize|keyboardHidden"-->

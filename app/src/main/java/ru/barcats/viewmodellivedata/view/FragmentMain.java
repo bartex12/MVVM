@@ -36,12 +36,39 @@ import ru.barcats.viewmodellivedata.R;
 import ru.barcats.viewmodellivedata.model.entities.Photo;
 import ru.barcats.viewmodellivedata.viewModel.MySourceFactory;
 import ru.barcats.viewmodellivedata.viewModel.MyViewModel;
+/*
+* Для того, чтобы отличить поворот экрана от запуска приложения сделано следующее
+* 1 при закрытии приложения в методе onCleared() MyViewModel сохраняем номер запуска в Preferebses
+* 2 в методе onViewCreated проверяем номер запуска на соответствие критериям показа диалога
+* если диалог надо показать - показываем и переключаем флаг isRotate, в результате чего
+* до закрытия приложения при поворотах экрана диалог больше не показывается
+* 3 чтобы не потерять значение флага при поворотах экрана, сохраняем его в onSaveInstanceState
+* и восстанавливаем в onViewCreated
+* */
 
+/*
+* для сохранения позиции в списке при повороте и уходе на другую активити нужно сделать так
+* 1 При повороте Найти  первую видимую позицию в списке  и сохранить её в методе onSaveInstanceState
+* 2 При уходе Найти позицию клика в списке  и сохранить её в методе onSaveInstanceState
+* 3 получить позицию  в методе onViewCreated или другом, где есть доступ к onSaveInstanceState
+* с учётом того - был поворот или возврат с другой активности
+* 4 преместиться в сохранённую позицию после получения данных  в методе onChanged
+* 5 это работает только если позиция в списке < (requestedLoadSize-количество столбцов в GridLayout)
+* 6 поэтому чтобы сохранение в списке работало хорошо, нужно чтобы был известен размер списка
+* и загружать его сразу целиком - а это сводит на нет преимущество PageList
+*
+* Можно использовать только первую видимую позицию но тогда есть риск потерять фото, если его
+* позиция поменяется пока находимся на активности детализации
+* можно ещё поиграть с offset - для более точного возврата - чтобы фото было на своем месте
+* а не на краю экрана
+* */
 
 public class FragmentMain extends Fragment {
 
     private static final String TAG = "33333";
     private static final String ROTATE= "ROTATE";
+    private static final String POSITION= "POSITION";
+    private static final String FIRST_POSITION= "FIRST_POSITION";
     private int numberOfLaunch = 0;
     private boolean isRotate;
 
@@ -51,6 +78,9 @@ public class FragmentMain extends Fragment {
     private EditText editTextSearch;
     private MyViewModel modelFoto = null;
     private RecyclerView recyclerView;
+
+    private int position;
+    private int firstVisibleItemPosition;
 
     public FragmentMain() {
         // Required empty public constructor
@@ -67,13 +97,21 @@ public class FragmentMain extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Log.d(TAG, "FragmentMain onViewCreated");
+        Log.d(TAG, "FragmentMain onViewCreated " + this);
         //получаем переменную, отделяющую поворот устройства от выхода из приложнния
+        //а также позицию фото, на котором сделан клик
         if (savedInstanceState != null){
             isRotate = savedInstanceState.getBoolean(ROTATE);
             Log.d(TAG, "FragmentMain onViewCreated isRotate = " +isRotate);
+            //если поворот, то перемещение в первую видимую, если возврат - то на сохранённую
+            if (isRotate){
+                position = savedInstanceState.getInt(FIRST_POSITION);
+                Log.d(TAG, "FragmentMain onViewCreated firstVisibleItemPosition = " + position);
+            }else {
+                position = savedInstanceState.getInt(POSITION);
+                Log.d(TAG, "FragmentMain onViewCreated position = " + position);
+            }
         }
-
         initViews(view);
         getPhotos();
         getNumberOfStart();
@@ -131,7 +169,13 @@ public class FragmentMain extends Fragment {
         pagedListLiveData.observe(this, new Observer<PagedList<Photo>>() {
             @Override
             public void onChanged(PagedList<Photo> photos) {
+                //передаём PagedList<Photo> в адаптер
                 adapter.submitList(photos);
+                //перемещаемся в сохранённую позицию
+                Objects.requireNonNull(recyclerView.getLayoutManager())
+                        .scrollToPosition(position);
+                Log.d(TAG, "### FragmentMain ### observe position = " + position);
+
             }
         });
     }
@@ -145,7 +189,9 @@ public class FragmentMain extends Fragment {
         PhotoPageAdapter.OnPageClickListener onPageClickListener =
                 new PhotoPageAdapter.OnPageClickListener() {
                     @Override
-                    public void onPageClick(String url) {
+                    public void onPageClick(String url, int positionInList) {
+                        //запоминаем позицию в списке для фото, на котором был клик
+                        position  = positionInList;
                         Bundle bundle = new Bundle();
                         bundle.putString(getString(R.string.url), url);
                         navController.navigate(R.id.action_fragmentMain_to_fragmentDetail, bundle);
@@ -166,7 +212,7 @@ public class FragmentMain extends Fragment {
                 //	размер страницы - порции загружаемых данных
                 .setPageSize(6)
                 //	число элементов данных, которые будут загружены при изначальном создании списка
-                .setInitialLoadSizeHint(30)
+                .setInitialLoadSizeHint(100)
                 //	расстояние в позициях данных, при достижении которого при скролле
                 //	будет активирована дальнейшая загрузка данных
                 .setPrefetchDistance(10)
@@ -201,17 +247,30 @@ public class FragmentMain extends Fragment {
     }
 
     //запоминаем переменную, отделяющую поворот устройства от выхода из приложнния
+    //а также позицию фото, на котором сделан клик
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(ROTATE, isRotate );
         Log.d(TAG, "FragmentMain onSaveInstanceState isRotate = " +isRotate);
+        outState.putInt(POSITION,position);
+        Log.d(TAG, "FragmentMain onSaveInstanceState position = " +position);
+        //определяем первую видимую позицию
+        firstVisibleItemPosition =
+                ((GridLayoutManager) Objects.requireNonNull(recyclerView.getLayoutManager()))
+                .findFirstCompletelyVisibleItemPosition();
+        outState.putInt(FIRST_POSITION, firstVisibleItemPosition);
+        Log.d(TAG, "FragmentMain onSaveInstanceState firstVisibleItemPosition = " +
+                firstVisibleItemPosition);
     }
 
     @Override
     public void onStop() {
         super.onStop();
         Log.d(TAG, "FragmentMain onStop");
+        Log.d(TAG, "FragmentMain onStop position = " +position);
+        Log.d(TAG, "FragmentMain onStop firstVisibleItemPosition = " +
+                firstVisibleItemPosition);
     }
 
     @Override
@@ -223,7 +282,7 @@ public class FragmentMain extends Fragment {
         //диалог, имитирующий выставление оценки в PlayMarket
     private AlertDialog createRateDialog() {
         Log.d(TAG, "MainActivity AlertDialog");
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
         builder.setMessage(R.string.rate_proposal_message)
                 .setPositiveButton(R.string.rate_proposal_yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {

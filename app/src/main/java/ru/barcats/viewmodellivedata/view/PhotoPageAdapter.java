@@ -21,11 +21,12 @@ public class PhotoPageAdapter extends PagedListAdapter<Photo, PhotoPageAdapter.P
     private OnPageClickListener onPageClickListener;
 
      PhotoPageAdapter() {
-        super(new DiffUtilCallback()); // для оптимального обновления адаптера
+        //
+         super(new DiffUtilCallback()); // для оптимального обновления адаптера
     }
 
     public interface OnPageClickListener {
-        void onPageClick(String url);
+        void onPageClick(String url, int position);
     }
 
      void setOnPageClickListener(OnPageClickListener onPageClickListener){
@@ -41,7 +42,7 @@ public class PhotoPageAdapter extends PagedListAdapter<Photo, PhotoPageAdapter.P
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PhotoViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull PhotoViewHolder holder, final int position) {
         final Photo photo = getItem(position);
         //Log.d(TAG, "onBindViewHolder, position = " + position);
         if (photo == null){
@@ -63,7 +64,7 @@ public class PhotoPageAdapter extends PagedListAdapter<Photo, PhotoPageAdapter.P
             @Override
             public void onClick(View v) {
                 final String url = Objects.requireNonNull(photo).getUrl();
-                onPageClickListener.onPageClick(url);
+                onPageClickListener.onPageClick(url, position);
             }
         });
     }
