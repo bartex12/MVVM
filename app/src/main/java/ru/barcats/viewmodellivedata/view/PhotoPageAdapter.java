@@ -26,7 +26,7 @@ public class PhotoPageAdapter extends PagedListAdapter<Photo, PhotoPageAdapter.P
     }
 
     public interface OnPageClickListener {
-        void onPageClick(String url, int position);
+        void onPageClick(String url);
     }
 
      void setOnPageClickListener(OnPageClickListener onPageClickListener){
@@ -64,7 +64,7 @@ public class PhotoPageAdapter extends PagedListAdapter<Photo, PhotoPageAdapter.P
             @Override
             public void onClick(View v) {
                 final String url = Objects.requireNonNull(photo).getUrl();
-                onPageClickListener.onPageClick(url, position);
+                onPageClickListener.onPageClick(url);
             }
         });
     }

@@ -68,8 +68,9 @@ public class FragmentMain extends Fragment {
     private static final String TAG = "33333";
     private static final String ROTATE= "ROTATE";
     private static final String POSITION= "POSITION";
-    private static final String FIRST_POSITION= "FIRST_POSITION";
+
     private int numberOfLaunch = 0;
+    private int position = 0;
     private boolean isRotate;
 
     private NavController navController;
@@ -78,9 +79,6 @@ public class FragmentMain extends Fragment {
     private EditText editTextSearch;
     private MyViewModel modelFoto = null;
     private RecyclerView recyclerView;
-
-    private int position;
-    private int firstVisibleItemPosition;
 
     public FragmentMain() {
         // Required empty public constructor
@@ -101,16 +99,10 @@ public class FragmentMain extends Fragment {
         //получаем переменную, отделяющую поворот устройства от выхода из приложнния
         //а также позицию фото, на котором сделан клик
         if (savedInstanceState != null){
+            position = savedInstanceState.getInt(POSITION);
+            Log.d(TAG, "FragmentMain onViewCreated position = " + position);
             isRotate = savedInstanceState.getBoolean(ROTATE);
-            Log.d(TAG, "FragmentMain onViewCreated isRotate = " +isRotate);
-            //если поворот, то перемещение в первую видимую, если возврат - то на сохранённую
-            if (isRotate){
-                position = savedInstanceState.getInt(FIRST_POSITION);
-                Log.d(TAG, "FragmentMain onViewCreated firstVisibleItemPosition = " + position);
-            }else {
-                position = savedInstanceState.getInt(POSITION);
-                Log.d(TAG, "FragmentMain onViewCreated position = " + position);
-            }
+            Log.d(TAG, "FragmentMain onViewCreated isRotate = " + isRotate);
         }
         initViews(view);
         getPhotos();
@@ -189,9 +181,12 @@ public class FragmentMain extends Fragment {
         PhotoPageAdapter.OnPageClickListener onPageClickListener =
                 new PhotoPageAdapter.OnPageClickListener() {
                     @Override
-                    public void onPageClick(String url, int positionInList) {
-                        //запоминаем позицию в списке для фото, на котором был клик
-                        position  = positionInList;
+                    public void onPageClick(String url) {
+                        //определяем первую видимую позицию
+                        position =((GridLayoutManager) Objects
+                                        .requireNonNull(recyclerView.getLayoutManager()))
+                                        .findFirstVisibleItemPosition();
+                        //передаём аргументы в Bundle
                         Bundle bundle = new Bundle();
                         bundle.putString(getString(R.string.url), url);
                         navController.navigate(R.id.action_fragmentMain_to_fragmentDetail, bundle);
@@ -246,31 +241,24 @@ public class FragmentMain extends Fragment {
         }
     }
 
-    //запоминаем переменную, отделяющую поворот устройства от выхода из приложнния
-    //а также позицию фото, на котором сделан клик
+    //запоминаем первую видимую позицию и флаг isRotate
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(ROTATE, isRotate );
-        Log.d(TAG, "FragmentMain onSaveInstanceState isRotate = " +isRotate);
-        outState.putInt(POSITION,position);
-        Log.d(TAG, "FragmentMain onSaveInstanceState position = " +position);
         //определяем первую видимую позицию
-        firstVisibleItemPosition =
-                ((GridLayoutManager) Objects.requireNonNull(recyclerView.getLayoutManager()))
-                .findFirstCompletelyVisibleItemPosition();
-        outState.putInt(FIRST_POSITION, firstVisibleItemPosition);
-        Log.d(TAG, "FragmentMain onSaveInstanceState firstVisibleItemPosition = " +
-                firstVisibleItemPosition);
+        position = ((GridLayoutManager) Objects
+                    .requireNonNull(recyclerView.getLayoutManager()))
+                    .findFirstVisibleItemPosition();
+        outState.putInt(POSITION, position);
+        Log.d(TAG, "FragmentMain onSaveInstanceState position = " + position);
+        outState.putBoolean(ROTATE, isRotate);
+        Log.d(TAG, "FragmentMain onSaveInstanceState isRotate = " + isRotate);
     }
 
     @Override
     public void onStop() {
         super.onStop();
         Log.d(TAG, "FragmentMain onStop");
-        Log.d(TAG, "FragmentMain onStop position = " +position);
-        Log.d(TAG, "FragmentMain onStop firstVisibleItemPosition = " +
-                firstVisibleItemPosition);
     }
 
     @Override
