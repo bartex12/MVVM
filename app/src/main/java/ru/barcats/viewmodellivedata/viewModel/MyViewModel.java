@@ -31,8 +31,8 @@ public class MyViewModel extends AndroidViewModel {
     private PhotoRepository photoRepository;
     private LaunchCountRepository launchCountRepository;
     private String search;
-
-
+    
+    //Subclasses must have a constructor which accepts Application as the only parameter.
     public MyViewModel(@NonNull Application application) {
         super(application);
 
