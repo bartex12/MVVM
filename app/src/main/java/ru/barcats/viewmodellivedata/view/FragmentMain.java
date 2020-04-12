@@ -25,7 +25,7 @@ import java.util.concurrent.Executors;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.paging.LivePagedListBuilder;
@@ -150,7 +150,8 @@ public class FragmentMain extends Fragment {
 
         // Получаем модель от провайдера
         // - для MVP было бы создание презентора, репозитория и т п, см код 4.4 по чистой архит.
-        modelFoto = ViewModelProviders.of(this).get(MyViewModel.class);
+        //вот это ViewModelProviders.of(this) уже устарело - ещё вчера было всё нормально
+        modelFoto = new ViewModelProvider(this).get(MyViewModel.class);
 
         //получаем PhotoPageAdapter и привязываем его к recyclerView
         final PhotoPageAdapter adapter = setPhotoPageAdapter();
@@ -168,7 +169,8 @@ public class FragmentMain extends Fragment {
                         .build();
 
         //	подписываемся на LivaData и обновляем адаптер
-        pagedListLiveData.observe(this, new Observer<PagedList<Photo>>() {
+        //еще вчера  работало  pagedListLiveData.observe(this, new Observer<PagedList<Photo>>()
+        pagedListLiveData.observe(getViewLifecycleOwner(), new Observer<PagedList<Photo>>() {
             @Override
             public void onChanged(PagedList<Photo> photos) {
                 //передаём PagedList<Photo> в адаптер
@@ -226,7 +228,7 @@ public class FragmentMain extends Fragment {
 
     private void getNumberOfStart() {
         LiveData<Integer> startNumber = modelFoto.getNumber();
-        startNumber.observe(this, new Observer<Integer>() {
+        startNumber.observe(getViewLifecycleOwner(), new Observer<Integer>() {
             @Override
             public void onChanged(Integer number) {
                 Log.d(TAG, "***  MainActivity getNumberOfStart  *** number = " + number);
